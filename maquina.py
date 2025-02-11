@@ -1,66 +1,78 @@
-nombresproductos = ["agua", "refresco", "zumo"]
-precioproductos = [0.50, 0.75, 0.95]
-reservamonedas = [20, 20, 20, 20, 20, 20]
-valoresmonedas = [2, 1, 0.50, 0.20, 0.10, 0.05]
+nombresProductos = ["Agua 💧", "Refresco 🥤", "Zumo 🍹"]
+preciosProductos = [0.50, 0.75, 0.95]
+reservaMonedas = [20, 20, 20, 20, 20, 20]
+valoresMonedas = [2, 1, 0.50, 0.20, 0.10, 0.05]
 
-def imprimirmenu(nombres, precios):
-    cont = 0
-    textomenu = ""
-    for nombre in nombres:
-        textomenu += f"{cont+1} - {nombre} : {precios[cont]} \n"
-        cont += 1
-    textomenu += f"{cont+1} - salir"
-    print(textomenu)
+def imprimirMenu(nombres, precios):
+    textoMenu = ""
+    for i in range(len(nombres)):
+        textoMenu += f"{i+1} - {nombres[i]} : {precios[i]}€ \n"
+    textoMenu += f"{len(nombres)+1} - SALIR"
+    print(textoMenu)
 
-def ingresaropcion():
-    opcion = input("Introduce opción (1-3 para productos, 4 para salir): ")
-    while opcion not in "1234":
-        opcion = input("Introduce una opción válida (1-3 para productos, 4 para salir): ")
-    return int(opcion) - 1
+def ingresarImporte(opcion):
+    precio = preciosProductos[opcion]
+    importeUsuario = 0
+    monedasIntroducidas = []
+    while importeUsuario < precio:
+        print(f"Le queda {round(precio-importeUsuario, 2)}€ por ingresar.")
+        moneda = ingresarMoneda()
+        importeUsuario += moneda
+        monedasIntroducidas.append(moneda)
+    if importeUsuario > precio:
+        resto = importeUsuario - precio
+        darCambio(resto)
+    entregarProducto(nombresProductos[opcion])
+    sumarMonedas(monedasIntroducidas)
 
-def ingresarimporte(opcion):
-    precio = precioproductos[opcion]
-    importeusuario = 0
-    monedasintroducidas = []
-    while importeusuario < precio:
-        print(f"Le queda {round(precio - importeusuario, 2)}€")
-        moneda = ingresarmoneda()
-        importeusuario += moneda
-        monedasintroducidas.append(moneda)
-        if importeusuario > precio:
-            resto = importeusuario - precio
-            darcambio(resto)
-            entregarproducto(nombresproductos[opcion])
-            sumarmonedas(monedasintroducidas)
-
-def darcambio(importe):
+def darCambio(resto):
     vueltas = 0
-    while importe > 0:
-        for valor in sorted(valoresmonedas, reverse=True):  # Intentamos dar cambio con las monedas más grandes
-            if valor <= importe:
-                cantidad = int(importe // valor)
-                importe -= cantidad * valor
-                print(f"Te devuelvo {cantidad} monedas de {valor}€")
-                break
+    monedasDevueltas = []
+    while vueltas < resto:
+        for valor in valoresMonedas:
+            if valor <= resto:
+                monedasDevueltas.append(valor)
+                vueltas += valor
+                if valor == resto:
+                    devolverMonedas(monedasDevueltas)
+                    print(f"Tus vueltas son: {monedasDevueltas}")
+                resto -= valor
 
-def sumarmonedas(monedas):
+def devolverMonedas(monedas):
     for moneda in monedas:
-        index = valoresmonedas.index(moneda)
-        reservamonedas[index] += 1
+        reservaMonedas[valoresMonedas.index(moneda)] -= 1
 
-def entregarproducto(producto):
-    print(f"Aquí tienes tu {producto}")
+def sumarMonedas(monedas):
+    for moneda in monedas:
+        reservaMonedas[valoresMonedas.index(moneda)] += 1
 
-def ingresarmoneda():
-    print("Monedas disponibles: 2€, 1€, 0.50€, 0.20€, 0.10€, 0.05€")
-    moneda = float(input("Introduce una moneda válida: "))
-    while moneda not in valoresmonedas:
-        moneda = float(input("Introduce una moneda válida: "))
-    return moneda
+def entregarProducto(producto):
+    print(f"Aquí tiene su {producto}.")
 
-imprimirmenu(nombresproductos, precioproductos)
-opcion = ingresaropcion()
-if opcion < len(nombresproductos):
-    ingresarimporte(opcion)
-else:
-    print("¡Hasta luego!")
+def ingresarMoneda():
+    valoresValidos = [str(valor) for valor in valoresMonedas]
+    moneda = input("Introduzca una moneda (2€, 1€, 0.50€, 0.20€, 0.10€, 0.05€): ")
+    while moneda not in valoresValidos:
+        moneda = input("Introduzca una moneda válida: ")
+    return float(moneda)
+
+def ingresarOpcion():
+    opcion = input("Introduce la opción: ")
+    while opcion not in ["1", "2", "3", "4"]:
+        opcion = input("Introduzca una opción correcta: ")
+    return int(opcion)
+
+continuar = True
+while continuar:
+    imprimirMenu(nombresProductos, preciosProductos)
+    opcion = ingresarOpcion()
+    
+    if opcion == 4:
+        continuar = False  
+    else:
+        ingresarImporte(opcion - 1)
+        print(reservaMonedas)
+        print(valoresMonedas)
+
+print("Saliendo del sistema...")
+
